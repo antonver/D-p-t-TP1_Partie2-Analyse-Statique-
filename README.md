@@ -22,8 +22,8 @@ Suivez ces étapes simples pour installer et construire le projet.
     Ouvrez un terminal et exécutez la commande suivante pour télécharger le code source :
 
     ```bash
-    git clone <URL_DU_DEPOT_GIT>
-    cd <NOM_DU_DOSSIER_PROJET>
+    git clone https://github.com/antonver/D-p-t-TP1_Partie2-Analyse-Statique-.git
+    cd Tp1PtEvol
     ```
 
 2.  **Construisez le projet avec Gradle**
@@ -57,7 +57,7 @@ Ce module analyse un projet et affiche des statistiques (nombre de classes, de m
   ./gradlew runAnalyseurFX
   ```
 
-* **Lancer la version console 🖥️**
+* **Lancer la version console **
   Cette version affiche les résultats directement dans le terminal. Vous devez fournir le chemin vers le projet que vous voulez analyser.
 
   ```bash
