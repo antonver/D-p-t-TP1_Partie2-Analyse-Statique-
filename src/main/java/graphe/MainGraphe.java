@@ -2,7 +2,10 @@ package graphe;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -11,10 +14,8 @@ import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.graphstream.graph.Graph;
-import org.graphstream.graph.implementations.SingleGraph;
 
-// Le programme principal pour créer et afficher le graphe d'appel.
+// Le programme principal pour créer et AFFICHER EN TEXTE le graphe d'appel.
 public class MainGraphe {
 
     public static void main(String[] args) throws IOException {
@@ -24,82 +25,70 @@ public class MainGraphe {
         }
 
         final File folder = new File(args[0]);
-        String[] sourcepathEntries = { folder.getAbsolutePath() }; // Important pour le binding
+        String[] sourcepathEntries = { folder.getAbsolutePath() };
 
         System.out.println("Analyse du projet: " + folder.getAbsolutePath());
 
-        // On cherche tous les fichiers .java
         Collection<File> javaFiles = FileUtils.listFiles(folder, new String[]{"java"}, true);
 
         VisiteurGrapheAppel visiteur = new VisiteurGrapheAppel();
 
         for (File file : javaFiles) {
+            System.out.println(" -> Analyse du fichier: " + file.getName());
             String sourceCode = FileUtils.readFileToString(file, "UTF-8");
 
             ASTParser parser = ASTParser.newParser(AST.JLS11);
-            parser.setKind(ASTParser.K_COMPILATION_UNIT);
-
-            // Configuration du parser. C'est TRES important pour que le "binding" fonctionne.
             parser.setResolveBindings(true);
-            parser.setBindingsRecovery(true); // On essaie de récupérer même s'il y a des erreurs
-
+            parser.setBindingsRecovery(true);
+            parser.setKind(ASTParser.K_COMPILATION_UNIT);
             Map<String, String> options = JavaCore.getOptions();
             JavaCore.setComplianceOptions(JavaCore.VERSION_11, options);
             parser.setCompilerOptions(options);
-
             parser.setEnvironment(null, sourcepathEntries, new String[] { "UTF-8" }, true);
-            parser.setUnitName(file.getName()); // Donner un nom au fichier aide le parser
+            parser.setUnitName(file.getName());
             parser.setSource(sourceCode.toCharArray());
 
             CompilationUnit cu = (CompilationUnit) parser.createAST(null);
-
-            // On lance le visiteur
             cu.accept(visiteur);
         }
 
-        // L'analyse est finie, on affiche le graphe !
-        dessinerGraphe(visiteur.getGrapheAppel());
+        // On appelle la méthode qui affiche le graphe DANS LA CONSOLE.
+        afficherGrapheConsole(visiteur.getGrapheAppel());
     }
 
-    public static void dessinerGraphe(Map<String, Set<String>> grapheAppel) {
-        // On dit à GraphStream d'utiliser l'interface Swing ou JavaFX
-        System.setProperty("org.graphstream.ui", "swing");
+    // Cette méthode affiche le graphe en format texte.
+    private static void afficherGrapheConsole(Map<String, Set<String>> grapheAppel) {
+        System.out.println("\n--- GRAPHE D'APPEL (Version Texte) ---");
 
-        Graph graph = new SingleGraph("Graphe d'Appel");
+        if (grapheAppel.isEmpty()) {
+            System.out.println("Le graphe d'appel est vide ou aucune méthode n'a été trouvée.");
+            return;
+        }
 
-        // Ajout du style pour que ça soit plus joli
-        graph.setAttribute("ui.stylesheet",
-                "node { text-size: 12; text-alignment: under; fill-color: #EEE; stroke-mode: plain; stroke-color: #555; padding: 5px, 4px; }" +
-                        "edge { shape: cubic-curve; arrow-size: 10px, 6px; fill-color: #444; }"
-        );
+        // Pour un affichage plus propre, on trie les méthodes par ordre alphabétique
+        List<String> methodesAppelantes = new ArrayList<>(grapheAppel.keySet());
+        Collections.sort(methodesAppelantes);
 
-        // 1. On ajoute tous les noeuds (les méthodes)
-        grapheAppel.keySet().forEach(methode -> {
-            graph.addNode(methode).setAttribute("ui.label", getNomCourt(methode));
-        });
-        grapheAppel.values().forEach(callees -> {
-            callees.forEach(methode -> {
-                if (graph.getNode(methode) == null) {
-                    graph.addNode(methode).setAttribute("ui.label", getNomCourt(methode));
-                }
-            });
-        });
+        for (String appelante : methodesAppelantes) {
+            Set<String> appelees = grapheAppel.get(appelante);
+            if (appelees != null && !appelees.isEmpty()) {
+                // On affiche la méthode qui fait l'appel
+                System.out.println("\n" + getNomCourt(appelante) + " appelle :");
 
-        // 2. On ajoute tous les arcs (les appels)
-        int edgeId = 0;
-        for (String caller : grapheAppel.keySet()) {
-            for (String callee : grapheAppel.get(caller)) {
-                if (graph.getNode(caller) != null && graph.getNode(callee) != null) {
-                    graph.addEdge(String.valueOf(edgeId++), caller, callee, true);
+                // On trie aussi les méthodes appelées pour la lisibilité
+                List<String> appeleesTriees = new ArrayList<>(appelees);
+                Collections.sort(appeleesTriees);
+
+                for (String appelee : appeleesTriees) {
+                    // On affiche chaque méthode qu'elle appelle, avec un décalage
+                    System.out.println("  -> " + getNomCourt(appelee));
                 }
             }
         }
-
-        // On affiche la fenêtre avec le graphe
-        graph.display();
+        System.out.println("\n--- FIN DU GRAPHE D'APPEL ---");
     }
 
-    // Petite fonction pour rendre les noms de méthodes plus lisibles sur le graphe
+    // Petite fonction pour rendre les noms de méthodes plus lisibles
     private static String getNomCourt(String nomComplet) {
         String[] parties = nomComplet.split("\\.");
         if (parties.length > 1) {
