@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.40.0")
+    implementation("org.eclipse.jdt:org.eclipse.jdt.core:3.38.0")
     implementation("commons-io:commons-io:2.14.0")
 
     implementation("org.openjfx:javafx-controls:$javafxVersion")
@@ -26,6 +26,12 @@ dependencies {
     implementation("org.graphstream:gs-core:2.0")
     implementation("org.graphstream:gs-ui-javafx:2.0")
     implementation("org.graphstream:gs-ui-swing:2.0")
+
+    // Spoon pour l'analyse de code (TP2 - Exercice 3)
+    implementation("fr.inria.gforge.spoon:spoon-core:11.1.0")
+    
+    // SLF4J simple pour éviter les avertissements de Spoon
+    implementation("org.slf4j:slf4j-simple:2.0.9")
 
 }
 
@@ -120,6 +126,32 @@ tasks.register<JavaExec>("runGrapheConsole") {
 
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("graphe.MainGraphe")
+
+    if (project.hasProperty("args")) {
+        args((project.property("args") as String).split(" "))
+    }
+}
+
+// Tâche pour lancer le TP2 (Exercices 1 et 2)
+tasks.register<JavaExec>("runTP2") {
+    group = "Execution"
+    description = "Lance l'application TP2 - Exercices 1 et 2 (Couplage, Clustering)"
+
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("tp2.MainTP2")
+
+    if (project.hasProperty("args")) {
+        args((project.property("args") as String).split(" "))
+    }
+}
+
+// Tâche pour lancer le TP2 Exercice 3 avec Spoon
+tasks.register<JavaExec>("runTP2Spoon") {
+    group = "Execution"
+    description = "Lance l'application TP2 - Exercice 3 avec Spoon"
+
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("tp2.MainTP2Spoon")
 
     if (project.hasProperty("args")) {
         args((project.property("args") as String).split(" "))

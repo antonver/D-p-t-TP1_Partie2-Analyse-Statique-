@@ -1,100 +1,99 @@
-# **Analyseur Statique de Code Java**
+# TP2 - Analyse de Couplage et Identification de Modules
 
-Ce projet est un outil d'analyse de code source pour des applications écrites en Java. Il permet de calculer des métriques de code et de visualiser le graphe d'appel des méthodes. L'application est disponible en version console et en version avec interface graphique (GUI) utilisant JavaFX.
+## Description
 
------
+Ce projet implémente trois exercices pour analyser le code Java :
 
-## **Prérequis**
+1. **Exercice 1** : Calcul du graphe de couplage entre classes
+2. **Exercice 2** : Clustering hiérarchique et identification de modules
+3. **Exercice 3** : Analyse automatique avec la bibliothèque Spoon
 
-Avant de commencer, assurez-vous d'avoir les outils suivants installés sur votre machine :
+## Prérequis
 
-* **JDK (Java Development Kit)** : Version 11 ou supérieure.
-* **Gradle** : Version 7.0 ou supérieure (ou utilisez le Gradle Wrapper inclus dans le projet).
-* **Git** : Pour cloner le dépôt.
+- Java JDK 11 ou plus récent
+- Git
 
------
+## Installation
 
-## **Installation**
+### Cloner le projet
 
-Suivez ces étapes simples pour installer et construire le projet.
+```bash
+git clone https://github.com/antonver/D-p-t-TP1_Partie2-Analyse-Statique-.git
+cd D-p-t-TP1_Partie2-Analyse-Statique-
+```
 
-1.  **Clonez le dépôt**
-    Ouvrez un terminal et exécutez la commande suivante pour télécharger le code source :
+### Compiler
 
-    ```bash
-    git clone https://github.com/antonver/D-p-t-TP1_Partie2-Analyse-Statique-.git
-    cd Tp1PtEvol
-    ```
+Sur macOS/Linux :
+```bash
+chmod +x gradlew
+./gradlew build
+```
 
-2.  **Construisez le projet avec Gradle**
-    Le projet inclut un Gradle Wrapper, ce qui signifie que vous n'avez pas besoin d'installer Gradle manuellement. Pour compiler le code et télécharger toutes les dépendances, exécutez :
+Sur Windows :
+```bash
+gradlew.bat build
+```
 
-    * Sur macOS/Linux :
-      ```bash
-      ./gradlew build
-      ```
-    * Sur Windows :
-      ```bash
-      gradlew.bat build
-      ```
+## Utilisation
 
-    Cette commande va télécharger les librairies nécessaires et compiler tous les fichiers `.java`. Si tout se passe bien, vous devriez voir un message `BUILD SUCCESSFUL`.
+### Analyser le projet exemple
 
------
+```bash
+./gradlew runTP2
+```
 
-## **Utilisation**
+### Analyser un autre projet
 
-Le projet est divisé en deux modules principaux, chacun avec une version console et une version graphique.
+```bash
+./gradlew runTP2 --args="/chemin/complet/vers/projet/src"
+```
 
-### **Module 1 : Analyseur de Métriques**
+### Exercice 3 avec Spoon
 
-Ce module analyse un projet et affiche des statistiques (nombre de classes, de méthodes, lignes de code, etc.).
+```bash
+./gradlew runTP2Spoon
+```
 
-* **Lancer la version graphique (GUI) **
-  C'est la méthode la plus simple. Exécutez la commande suivante pour ouvrir l'application avec une interface utilisateur. Vous pourrez y choisir un dossier à analyser.
+## Commandes disponibles
 
-  ```bash
-  ./gradlew runAnalyseurFX
-  ```
+### TP2
 
-* **Lancer la version console **
-  Cette version affiche les résultats directement dans le terminal. Vous devez fournir le chemin vers le projet que vous voulez analyser.
+- `./gradlew runTP2` - Exercices 1 et 2 (avec Eclipse JDT)
+- `./gradlew runTP2Spoon` - Exercice 3 (analyse avec Spoon)
 
-  ```bash
-  ./gradlew runAnalyseurConsole --args="/chemin/complet/vers/le/projet"
-  ```
+### TP1 (disponibles aussi)
 
-  **Exemple :**
-  `./gradlew runAnalyseurConsole --args="/Users/monUtilisateur/documents/monProjetJava"`
+- `./gradlew runAnalyseurFX` - Interface graphique pour l'analyseur de métriques
+- `./gradlew runGrapheFX` - Interface graphique pour le graphe d'appel
+- `./gradlew runAnalyseurConsole --args="/chemin"` - Analyseur en console
+- `./gradlew runGrapheConsole --args="/chemin"` - Graphe d'appel en console
 
-### **Module 2 : Visualiseur du Graphe d'Appel**
+## Structure du projet
 
-Ce module analyse les appels de méthodes et affiche un graphe interactif des dépendances.
+```
+src/main/java/
+├── couplage/              # Exercice 1
+├── clustering/            # Exercice 2
+├── spoon/                 # Exercice 3
+├── tp2/                   # Programmes principaux
+├── graphe/                # TP1 - Graphe d'appel
+├── analyseur/             # TP1 - Analyse de métriques
+└── exemple/               # Projet exemple
+```
 
-* **Lancer la version graphique (GUI)**
-  Ouvre une fenêtre où vous pouvez sélectionner un projet. Le graphe d'appel sera ensuite affiché dans cette même fenêtre.
+## Configuration
 
-  ```bash
-  ./gradlew runGrapheFX
-  ```
+Pour modifier le seuil de couplage (CP), éditez `src/main/java/tp2/MainTP2.java` :
 
-* **Lancer la version console️**
-  Cette commande analyse le projet et ouvre une fenêtre séparée (gérée par GraphStream) pour afficher le graphe.
+```java
+double seuilCP = 0.01;  // Valeur par défaut
+```
 
-  ```bash
-  ./gradlew runGrapheConsole --args="/chemin/complet/vers/le/projet"
-  ```
+## Dépendances
 
-  **Exemple :**
-  `./gradlew runGrapheConsole --args="C:\Projets\MonAppli"`
-
------
-
-## **Dépendances**
-
-Le projet utilise les librairies externes suivantes, qui sont gérées automatiquement par Gradle :
-
-* **Eclipse JDT Core** : Pour l'analyse syntaxique du code Java.
-* **Apache Commons IO** : Pour simplifier la lecture des fichiers.
-* **JavaFX** : Pour les interfaces graphiques.
-* **GraphStream** : Pour la modélisation et la visualisation des graphes.
+- Eclipse JDT Core 3.38.0
+- Spoon 11.1.0
+- Apache Commons IO 2.14.0
+- JavaFX 21.0.1
+- GraphStream 2.0
